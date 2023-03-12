@@ -55,7 +55,8 @@ INSTALLED_APPS = [
     'dry_rest_permissions',
     'rest_framework_swagger',
     'corsheaders',
-    'users'
+    'users',
+    'foods',
 ]
 
 MIDDLEWARE = [
