@@ -62,6 +62,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -238,3 +239,8 @@ OPENID_AUTH_URL = env.str("OPENID_AUTH_URL", default="")
 AUTH_URL = f"{OPENID_AUTH_URL}/idm/auth"
 ADMIN_SITE_HEADER = env.str("ADMIN_SITE_HEADER", default="Template Users Administration")
 ADMIN_SITE_INDEX_TITLE = env.str("ADMIN_SITE_INDEX_TITLE", default="Template Users Administration Panel")
+
+# CORS
+CORS_ORIGIN_ALLOW_ALL = True
+
+MAXIMUM_DAY_DOSE = env.float("MAXIMUM_DAY_DOSE", default=2.1)

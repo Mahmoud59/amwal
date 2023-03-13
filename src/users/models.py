@@ -25,5 +25,6 @@ class AdminAccount(Account):
 
 
 class UserAccount(Account):
+    day_dose_limit = models.FloatField(default=2.1)
     user = models.OneToOneField(User, on_delete=models.SET_NULL,
                                 related_name="users", null=True)

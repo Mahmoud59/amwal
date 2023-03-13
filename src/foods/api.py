@@ -1,6 +1,9 @@
+from datetime import datetime, timedelta
+
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from foods.models import Food, UserFood
@@ -30,3 +33,23 @@ class UserFoodViewSet(ModelViewSet):
         user_food.save()
         return Response(data=user_food.data,
                         status=status.HTTP_201_CREATED)
+
+
+class UserFoodReportAPIView(APIView):
+    permission_classes = ()
+
+    def get(self, request, *args, **kwargs):
+        today = datetime.today().date()
+        from_date = request.query_params.get(
+            'from_date', today - timedelta(days=7))
+        to_date = request.query_params.get('to_date', today)
+
+        users_foods = UserFood.objects.filter(
+            dose_time__date__gte=from_date,
+            dose_time__date__lte=to_date
+        ).order_by('-id')
+        users_foods_serializer = UserFoodSerializer(
+            users_foods, many=True)
+
+        return Response(data=users_foods_serializer.data,
+                        status=status.HTTP_200_OK)

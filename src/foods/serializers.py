@@ -11,7 +11,7 @@ class FoodSerializer(serializers.ModelSerializer):
 
 class UserFoodSerializer(serializers.ModelSerializer):
     calorie_value = serializers.FloatField(
-        required=True, min_value=0.1)
+        required=True, min_value=0.1, max_value=2.1)
 
     class Meta:
         model = UserFood
