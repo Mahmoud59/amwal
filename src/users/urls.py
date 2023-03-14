@@ -1,14 +1,15 @@
 from django.urls import path
-from rest_framework_simplejwt.views import TokenObtainPairView
 
 from users.admins.api import AdminViewSet
+from users.api import UserLoginAPIView
 from users.users.api import UserViewSet
 
 urlpatterns = [
-    # Admin
-    path('admins/login/', TokenObtainPairView.as_view(),
-         name='admin-login'),
+    # Login
+    path('users/login/', UserLoginAPIView.as_view(),
+         name='users-login'),
 
+    # Admin
     path('admins/', AdminViewSet.as_view({
         'get': 'list',
         'post': 'create'
@@ -21,9 +22,6 @@ urlpatterns = [
     }), name='admin-detail'),
 
     # User
-    path('users/login/', TokenObtainPairView.as_view(),
-         name='user-login'),
-
     path('users/', UserViewSet.as_view({
         'get': 'list',
         'post': 'create'

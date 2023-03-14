@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from safedelete.models import SafeDeleteModel
 
@@ -10,6 +11,13 @@ class Food(TimeStampedModel, SafeDeleteModel):
 
 
 class UserFood(TimeStampedModel, SafeDeleteModel):
+    class MealType(models.TextChoices):
+        BREAKFAST = 'breakfast', _('breakfast')
+        LUNCH = 'lunch', _('lunch')
+        DINNER = 'dinner', _('dinner')
+
+    meal = models.TextField(choices=MealType.choices,
+                            default=MealType.BREAKFAST)
     calorie_value = models.FloatField('Calorie Value', default=0)
     dose_time = models.DateTimeField('Dose Time')
     food = models.ForeignKey(Food, related_name="user_dose_food",

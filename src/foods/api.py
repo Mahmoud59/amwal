@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta
 
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
@@ -9,19 +11,26 @@ from rest_framework.viewsets import ModelViewSet
 from foods.models import Food, UserFood
 from foods.serializers import FoodSerializer, UserFoodSerializer
 from users.models import UserAccount
+from utils.permissions import AdminPermission, UserPermission, decode_token
 
 
 class FoodViewSet(ModelViewSet):
-    permission_classes = ()
+    permission_classes = (IsAuthenticated, AdminPermission |
+                          UserPermission)
     serializer_class = FoodSerializer
     queryset = Food.objects.order_by('-id')
 
 
 class UserFoodViewSet(ModelViewSet):
-    permission_classes = ()
+    permission_classes = (IsAuthenticated, AdminPermission |
+                          UserPermission)
     serializer_class = UserFoodSerializer
 
     def get_queryset(self):
+        user_token = decode_token(self.request)
+        if user_token['user_type'] == 'user' and \
+           user_token['uuid'] != self.kwargs['uuid']:
+            raise PermissionDenied
         return UserFood.objects.filter(
             user__uuid=self.kwargs['uuid'])
 
@@ -36,7 +45,7 @@ class UserFoodViewSet(ModelViewSet):
 
 
 class UserFoodReportAPIView(APIView):
-    permission_classes = ()
+    permission_classes = (IsAuthenticated, AdminPermission)
 
     def get(self, request, *args, **kwargs):
         today = datetime.today().date()

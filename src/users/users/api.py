@@ -9,10 +9,12 @@ from users.serializers import UserSerializer
 from users.users.serializers import (
     ListUserModelSerializer, UserModelSerializer,
 )
+from utils.permissions import AdminPermission, UserPermission
 
 
 class UserViewSet(ModelViewSet):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated, AdminPermission |
+                          UserPermission)
     serializer_class = UserModelSerializer
     queryset = UserAccount.objects.all().order_by('-created')
 

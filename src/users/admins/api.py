@@ -6,10 +6,11 @@ from rest_framework.viewsets import ModelViewSet
 from users.admins.serializers import AdminSerializer
 from users.models import AdminAccount
 from users.serializers import UserSerializer
+from utils.permissions import AdminPermission
 
 
 class AdminViewSet(ModelViewSet):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated, AdminPermission)
     serializer_class = AdminSerializer
     queryset = AdminAccount.objects.all().order_by('-created')
 
