@@ -17,3 +17,10 @@ class UserFoodSerializer(serializers.ModelSerializer):
         model = UserFood
         fields = '__all__'
         extra_kwargs = {'food': {'required': True}}
+
+
+class ListUserFoodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserFood
+        fields = '__all__'
+        depth = 1

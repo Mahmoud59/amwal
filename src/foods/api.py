@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from foods.models import Food, UserFood
-from foods.serializers import FoodSerializer, UserFoodSerializer
+from foods.serializers import FoodSerializer, UserFoodSerializer, ListUserFoodSerializer
 from users.models import UserAccount
 from utils.permissions import AdminPermission, UserPermission, decode_token
 
@@ -32,7 +32,12 @@ class UserFoodViewSet(ModelViewSet):
            user_token['uuid'] != self.kwargs['uuid']:
             raise PermissionDenied
         return UserFood.objects.filter(
-            user__uuid=self.kwargs['uuid'])
+            user__uuid=self.kwargs['uuid']).order_by('-id')
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            self.serializer_class = ListUserFoodSerializer
+        return super().get_serializer_class()
 
     def create(self, request, *args, **kwargs):
         request.data['user'] = get_object_or_404(
