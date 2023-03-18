@@ -1,7 +1,9 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 
-from foods.api import FoodViewSet, UserFoodReportAPIView, UserFoodViewSet
+from foods.api import (
+    FoodViewSet, UserFoodLimitAPIView, UserFoodReportAPIView, UserFoodViewSet,
+)
 
 urlpatterns = [
     path('users/<str:uuid>/foods/', UserFoodViewSet.as_view({
@@ -14,8 +16,10 @@ urlpatterns = [
         'patch': 'partial_update',
         'delete': 'destroy'
     }), name='user-food-detail'),
-    path('users-foods/', UserFoodReportAPIView.as_view(),
+    path('users-foods/report/', UserFoodReportAPIView.as_view(),
          name='user-food-report-list'),
+    path('users/<str:uuid>/foods/limits/', UserFoodLimitAPIView.as_view(),
+         name='user-food-limits'),
 ]
 
 router = DefaultRouter()

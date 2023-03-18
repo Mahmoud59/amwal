@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from django.core.exceptions import PermissionDenied
+from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -9,7 +10,9 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from foods.models import Food, UserFood
-from foods.serializers import FoodSerializer, UserFoodSerializer, ListUserFoodSerializer
+from foods.serializers import (
+    FoodSerializer, ListUserFoodSerializer, UserFoodSerializer,
+)
 from users.models import UserAccount
 from utils.permissions import AdminPermission, UserPermission, decode_token
 
@@ -31,6 +34,7 @@ class UserFoodViewSet(ModelViewSet):
         if user_token['user_type'] == 'user' and \
            user_token['uuid'] != self.kwargs['uuid']:
             raise PermissionDenied
+
         return UserFood.objects.filter(
             user__uuid=self.kwargs['uuid']).order_by('-id')
 
@@ -66,4 +70,30 @@ class UserFoodReportAPIView(APIView):
             users_foods, many=True)
 
         return Response(data=users_foods_serializer.data,
+                        status=status.HTTP_200_OK)
+
+
+class UserFoodLimitAPIView(APIView):
+    permission_classes = (IsAuthenticated, UserPermission)
+
+    def get(self, request, *args, **kwargs):
+        user_food_doses = UserFood.objects.filter(
+            user__uuid=kwargs['uuid']
+        )
+        max_user_dose = user_food_doses.values(
+            'dose_time__date', 'calorie_value').annotate(
+            all_calories=Sum('calorie_value')).values(
+            'dose_time__date', 'all_calories').order_by(
+            '-all_calories')
+        if not max_user_dose or not user_food_doses:
+            max_day_dose = ListUserFoodSerializer([], many=True)
+            return Response(data=max_day_dose.data,
+                            status=status.HTTP_200_OK)
+
+        max_day = user_food_doses.filter(
+            dose_time__date=max_user_dose[0]['dose_time__date']
+        ).order_by('id')
+
+        max_day_dose = ListUserFoodSerializer(max_day, many=True)
+        return Response(data=max_day_dose.data,
                         status=status.HTTP_200_OK)
